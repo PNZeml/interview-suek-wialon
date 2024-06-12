@@ -10,7 +10,7 @@ namespace Suek.Interview.Wialon.WialonProtocols.Ips1d1;
 internal sealed class WialonIps1d1ConnectionHandler : ConnectionHandler {
     private readonly DevicePacketHandler packetHandler;
 
-    private static readonly TimeSpan ConsumeTimeout = TimeSpan.FromSeconds(90.0d);
+    private static readonly TimeSpan ConsumeTimeout = TimeSpan.FromSeconds(10.0d);
 
     public WialonIps1d1ConnectionHandler(DevicePacketHandler packetHandler) {
         this.packetHandler = packetHandler;
@@ -30,6 +30,9 @@ internal sealed class WialonIps1d1ConnectionHandler : ConnectionHandler {
                     .CreateLinkedTokenSource(lifetimeCancellation, timeoutCancellation.Token);
 
                 var readResult = await reader.ReadAsync(cancellation.Token);
+                if (readResult.IsCompleted) {
+                    throw new Exception("Consuming has been completed");
+                }
 
                 var buffer = readResult.Buffer;
 
@@ -51,10 +54,11 @@ internal sealed class WialonIps1d1ConnectionHandler : ConnectionHandler {
 
                 await writer.WriteAsync(answer, cancellation.Token);
             }
-        } catch {
-            
-        } finally {
-            
+        } catch (Exception exception) {
+            await reader.CompleteAsync(exception);
+            await writer.CompleteAsync(exception);
+
+            throw;
         }
 
         IConnectionLifetimeNotificationFeature GetConnectionLifetime() {

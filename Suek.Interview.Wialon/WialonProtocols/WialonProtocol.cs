@@ -36,6 +36,10 @@ public static class WialonProtocol {
 
             public const string MessageAck = "AM";
 
+            public const string ShortData = "SD";
+
+            public const string ShortDataAck = "ASD";
+
             public static readonly byte[] LoginAckBytes = [ 0x41, 0x4C ];
         }
     }

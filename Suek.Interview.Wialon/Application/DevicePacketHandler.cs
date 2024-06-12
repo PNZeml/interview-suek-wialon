@@ -9,7 +9,9 @@ internal sealed class DevicePacketHandler {
         this.logger = logger;
     }
 
-    public async Task Handle(IWialonPacket packet, CancellationToken cancellation) {
+    public Task Handle(IWialonPacket packet, CancellationToken cancellation) {
         logger.LogInformation("Got Wialon packet: {packet}", packet);
+
+        return Task.CompletedTask;
     }
 }

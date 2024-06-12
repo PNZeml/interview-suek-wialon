@@ -2,25 +2,34 @@ using System.Net;
 using Microsoft.AspNetCore.Connections;
 using Suek.Interview.Wialon;
 using Suek.Interview.Wialon.Application;
+using Suek.Interview.Wialon.WialonProtocols;
 using Suek.Interview.Wialon.WialonProtocols.Ips1d1;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging
+    .AddFile<BasicFormatter>(
+        configuration => {
+            configuration.Directory = @".\";
+            configuration.UseRollingFiles = true;
+            configuration.RollingFileTimestampFormat = @"yyyy-MM-dd";
+            configuration.FileExtension = "log";
+            configuration.FileNamePrefix = "suek-wialon";
+            configuration.MinimumLogLevel = LogLevel.Debug;
+        },
+        formatter => {
+            formatter.CaptureScopes = true;
+            formatter.UseUtcTimestamp = true;
+            formatter.IncludePID = true;
+            formatter.IncludeUser = true;
+        }
+    );
+
 builder.Services
     .AddTransient<DevicePacketHandler>();
 
-builder.WebHost.ConfigureKestrel((context, options) => {
-    // TODO: Refactor
-    var wialonOptions = context.Configuration
-        .GetRequiredSection(WialonServerOptions.Section)
-        .Get<WialonServerOptions>();
-
-    foreach (var l in wialonOptions.Listeners) {        
-        options.Listen(IPAddress.Parse(l.Host), l.Port, static options => {
-            options.UseConnectionHandler<WialonIps1d1ConnectionHandler>();
-        });
-    }
-});
+builder.WebHost
+    .ConfigureWialonServer();
 
 var app = builder.Build();
 
