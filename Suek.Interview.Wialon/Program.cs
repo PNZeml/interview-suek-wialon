@@ -1,6 +1,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Connections;
-using Suek.Iterview.Wialon;
+using Suek.Interview.Wialon;
 
 var builder = WebApplication.CreateBuilder(args);
 

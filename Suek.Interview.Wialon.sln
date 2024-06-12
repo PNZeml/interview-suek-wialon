@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Suek.Iterview.Wialon", "Suek.Iterview.Wialon\Suek.Iterview.Wialon.csproj", "{F42816E4-956B-4B57-8B90-18A41567FF49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Suek.Interview.Wialon", "Suek.Interview.Wialon\Suek.Interview.Wialon.csproj", "{F42816E4-956B-4B57-8B90-18A41567FF49}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

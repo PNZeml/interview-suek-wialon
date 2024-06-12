@@ -1,4 +1,4 @@
-﻿namespace Suek.Iterview.Wialon;
+﻿namespace Suek.Interview.Wialon;
 
 public static class WialonProtocol {
     public static class Constants {

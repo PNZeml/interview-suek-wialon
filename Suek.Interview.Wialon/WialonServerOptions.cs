@@ -1,5 +1,5 @@
 ﻿
-namespace Suek.Iterview.Wialon;
+namespace Suek.Interview.Wialon;
 
 public class WialonServerOptions {
     public const string Section = "Wialon";

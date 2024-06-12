@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Connections.Features;
 using Microsoft.AspNetCore.Http.Features;
 
-namespace Suek.Iterview.Wialon;
+namespace Suek.Interview.Wialon;
 
 public sealed class WialonIps1d1ConnectionHandler : ConnectionHandler {
     
