@@ -1,4 +1,6 @@
 ﻿
+using Suek.Interview.Wialon.WialonProtocols;
+
 namespace Suek.Interview.Wialon;
 
 public class WialonServerOptions {

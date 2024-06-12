@@ -1,11 +1,13 @@
 using System.Net;
 using Microsoft.AspNetCore.Connections;
 using Suek.Interview.Wialon;
+using Suek.Interview.Wialon.Application;
 using Suek.Interview.Wialon.WialonProtocols.Ips1d1;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddTransient<WialonIps1d1ConnectionHandler>();
+builder.Services
+    .AddTransient<DevicePacketHandler>();
 
 builder.WebHost.ConfigureKestrel((context, options) => {
     // TODO: Refactor

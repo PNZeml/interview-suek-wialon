@@ -2,46 +2,57 @@
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Connections.Features;
 using Microsoft.AspNetCore.Http.Features;
+using Suek.Interview.Wialon.Application;
 using Suek.Interview.Wialon.Utils;
 
 namespace Suek.Interview.Wialon.WialonProtocols.Ips1d1;
 
-internal interface IWialonPacket;
-
 internal sealed class WialonIps1d1ConnectionHandler : ConnectionHandler {
-    
+    private readonly DevicePacketHandler packetHandler;
+
     private static readonly TimeSpan ConsumeTimeout = TimeSpan.FromSeconds(90.0d);
+
+    public WialonIps1d1ConnectionHandler(DevicePacketHandler packetHandler) {
+        this.packetHandler = packetHandler;
+    }
 
     public override async Task OnConnectedAsync(ConnectionContext connection) {
         var reader = connection.Transport.Input;
         var writer = connection.Transport.Output;
 
-        var connectionLifetime = GetConnectionLifetime();
+        var lifetimeCancellation = GetConnectionLifetime().ConnectionClosedRequested;
 
         try {
             while (true) {
-                using var consumeTimeoutCancellation = new CancellationTokenSource(ConsumeTimeout);
+                using var timeoutCancellation = new CancellationTokenSource(ConsumeTimeout);
+                
+                using var cancellation = CancellationTokenSource
+                    .CreateLinkedTokenSource(lifetimeCancellation, timeoutCancellation.Token);
 
-                using var combinedCancellation = CancellationTokenSource
-                    .CreateLinkedTokenSource(
-                        connectionLifetime.ConnectionClosedRequested,
-                        consumeTimeoutCancellation.Token
-                    );
-
-                var readResult = await reader.ReadAsync(combinedCancellation.Token);
+                var readResult = await reader.ReadAsync(cancellation.Token);
 
                 var buffer = readResult.Buffer;
-                var (consumed, observed) = (buffer.Start, buffer.Start);
 
-                if (WialonIps1d1Decoder.TryDecode(ByteReader.GetBuffer(ref buffer), out var packet) == false) {
-                    
+                var isPacketDecoded = WialonIps1d1Decoder.TryDecodePacket(
+                    ByteReader.GetBuffer(ref buffer), out var packet, out var consumed
+                );
+
+                if (isPacketDecoded == false) {
+                    throw new Exception("Could not decode consuming packet");
                 }
 
-                reader.AdvanceTo(buffer.End, buffer.End);
+                await packetHandler.Handle(packet, cancellation.Token);
 
-                // Читать секцию с типами пактов, пока не встретим '#'
-                // Читать сообщение, пока не встретим конец пакета
+                var consumedPosition = buffer.Slice(0, consumed).End;
+
+                reader.AdvanceTo(consumedPosition, consumedPosition);
+
+                var answer = WialonIps1d1Encoder.Encode(packet);
+
+                await writer.WriteAsync(answer, cancellation.Token);
             }
+        } catch {
+            
         } finally {
             
         }
