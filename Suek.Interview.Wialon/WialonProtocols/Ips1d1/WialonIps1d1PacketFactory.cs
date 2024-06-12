@@ -53,28 +53,37 @@ internal static class Wialon1d1PacketFactory {
         const int satellitesFieldIdx      = 9;
 
         if (fields.Length != 10) {
-            throw new Exception("Invalid Short Data packet");
+            throw new("Invalid Short Data packet");
         }
+
+        const string dateTimeFormat = "ddMMyy HHmmss";
 
         var collectedAt = DateTimeOffset
             .ParseExact(
                 $"{fields[collectedAtDataFieldIdx]} {fields[collectedAtTimeFieldIdx]}",
-                "ddMMyy HHmmss",
-                CultureInfo.InvariantCulture.DateTimeFormat
+                dateTimeFormat,
+                CultureInfo.InvariantCulture.DateTimeFormat,
+                DateTimeStyles.AssumeUniversal
             );
 
+        const string notAvailable = "NA";
+
         return new(
-            collectedAt,
-            new(
+            CollectedAt: collectedAt,
+            Location: new(
                 ParseDouble(fields[latitudeFieldIdx]),
                 fields[northEastFieldIdx],
                 ParseDouble(fields[longitudeFieldIdx]),
                 fields[eastWestFieldIdx]
             ),
-            fields[speedFieldIdx] == "NA" ? null : Convert.ToInt32(fields[speedFieldIdx]), 
-            fields[courseFieldIdx] == "NA" ? null : Convert.ToInt32(fields[courseFieldIdx]), 
-            fields[altitudeFieldIdx] == "NA" ? null : Convert.ToInt32(fields[altitudeFieldIdx]), 
-            fields[satellitesFieldIdx] == "NA" ? null : Convert.ToInt32(fields[satellitesFieldIdx]) 
+            Speed: fields[speedFieldIdx] == notAvailable
+                ? null : Convert.ToInt32(fields[speedFieldIdx]), 
+            Course: fields[courseFieldIdx] == notAvailable
+                ? null : Convert.ToInt32(fields[courseFieldIdx]), 
+            Height: fields[altitudeFieldIdx] == notAvailable
+                ? null : Convert.ToInt32(fields[altitudeFieldIdx]), 
+            Satellites: fields[satellitesFieldIdx] == notAvailable
+                ? null : Convert.ToInt32(fields[satellitesFieldIdx]) 
         );
 
         double ParseDouble(string number) {

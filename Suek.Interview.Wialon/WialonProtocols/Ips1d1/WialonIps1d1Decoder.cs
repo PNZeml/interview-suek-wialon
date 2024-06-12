@@ -1,5 +1,4 @@
 using System.Text;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Suek.Interview.Wialon.WialonProtocols.Ips1d1;
 

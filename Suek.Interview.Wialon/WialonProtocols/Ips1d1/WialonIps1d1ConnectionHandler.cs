@@ -1,5 +1,4 @@
-﻿using System.Buffers;
-using Microsoft.AspNetCore.Connections;
+﻿using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Connections.Features;
 using Microsoft.AspNetCore.Http.Features;
 using Suek.Interview.Wialon.Application;
@@ -31,7 +30,7 @@ internal sealed class WialonIps1d1ConnectionHandler : ConnectionHandler {
 
                 var readResult = await reader.ReadAsync(cancellation.Token);
                 if (readResult.IsCompleted) {
-                    throw new Exception("Consuming has been completed");
+                    throw new("Consuming has been completed");
                 }
 
                 var buffer = readResult.Buffer;
@@ -41,7 +40,7 @@ internal sealed class WialonIps1d1ConnectionHandler : ConnectionHandler {
                 );
 
                 if (isPacketDecoded == false) {
-                    throw new Exception("Could not decode consuming packet");
+                    throw new("Could not decode consuming packet");
                 }
 
                 await packetHandler.Handle(packet, cancellation.Token);

@@ -2,7 +2,7 @@ namespace Suek.Interview.Wialon.WialonProtocols.Ips1d1.Packets;
 
 internal record ShortDataWialon1d1Packet(
     DateTimeOffset CollectedAt,
-    GpsLocation Position,
+    GpsLocation Location,
     int? Speed,
     int? Course,
     int? Height,
