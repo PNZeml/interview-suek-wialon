@@ -1,6 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Connections;
 using Suek.Interview.Wialon;
+using Suek.Interview.Wialon.WialonProtocols.Ips1d1;
 
 var builder = WebApplication.CreateBuilder(args);
 

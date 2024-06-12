@@ -7,6 +7,8 @@ public static class WialonProtocol {
         /// </summary>
         public const byte Delimiter = 0x23;
 
+        public static byte[] PacketEnd = [0x0D,  0x0A];
+
         public static readonly byte[] LoginAckBytes = [ 0x41, 0x4C ];
         
         public static class PacketTypes {
