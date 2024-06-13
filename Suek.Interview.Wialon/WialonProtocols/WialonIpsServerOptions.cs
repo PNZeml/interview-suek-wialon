@@ -1,5 +1,4 @@
-﻿
-namespace Suek.Interview.Wialon.WialonProtocols;
+﻿namespace Suek.Interview.Wialon.WialonProtocols;
 
 public class WialonIpsServerOptions {
     public const string Section = "Wialon";
