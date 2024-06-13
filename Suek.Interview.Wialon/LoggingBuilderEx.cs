@@ -18,8 +18,8 @@ public static class LoggingBuilderEx {
         static void ConfigureFormatter(FileLoggerFormatterOptions formatter) {
             formatter.CaptureScopes = true;
             formatter.UseUtcTimestamp = true;
-            formatter.IncludePID = true;
-            formatter.IncludeUser = true;
+            formatter.IncludePID = false;
+            formatter.IncludeUser = false;
         }
     }
 }
