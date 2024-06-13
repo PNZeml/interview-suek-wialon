@@ -6,29 +6,29 @@ internal static class WialonIps1d1Encoder {
     public static ArraySegment<byte> Encode(IWialonPacket packet) {
         var buffer = ArrayPool<byte>.Shared.Rent(256);
 
-        var offset = 0;
+        try {
 
-        buffer[offset++] = WialonProtocol.Constants.Delimiter;
+            var offset = 0;
 
-        WialonProtocol.Constants.PacketTypes
-            .LoginAckBytes.CopyTo(buffer, offset);
-        offset += 2;
+            buffer[offset++] = WialonIpsProtocol.Constants.PacketStart;
 
-        buffer[offset++] = WialonProtocol.Constants.Delimiter;
+            WialonIpsProtocol.Packets.Login.Ack!.Bytes.CopyTo(buffer, offset);
+            offset += 2;
 
-        // Ack Status
-        WialonProtocol.Constants.Acks.Login
-            .Success.CopyTo(buffer, offset);
-        offset += WialonProtocol.Constants.Acks.Login
-            .Success.Length;
+            buffer[offset++] = WialonIpsProtocol.Constants.PacketStart;
 
-        buffer[offset++] = 0x0D;
-        buffer[offset++] = 0x0A;
+            // TODO: Fix magic string
+            WialonIpsProtocol.Packets.Login.AckCodes["Success"].CopyTo(buffer, offset);
+            offset += WialonIpsProtocol.Packets.Login.AckCodes["Success"].Length;
 
-        var bytes = new ArraySegment<byte>(buffer, 0, offset);
-        
-        ArrayPool<byte>.Shared.Return(buffer);
+            buffer[offset++] = 0x0D;
+            buffer[offset++] = 0x0A;
 
-        return bytes;
+            var encodedPacket = new ArraySegment<byte>(buffer, 0, offset);
+
+            return encodedPacket;
+        } finally {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
     }
 }

@@ -1,3 +1,4 @@
+using Suek.Interview.Wialon;
 using Suek.Interview.Wialon.Application;
 using Suek.Interview.Wialon.WialonProtocols;
 
@@ -8,7 +9,7 @@ builder.Logging
         configuration => {
             configuration.Directory = @".\";
             configuration.UseRollingFiles = true;
-            configuration.RollingFileTimestampFormat = @"yyyy-MM-dd";
+            configuration.RollingFileTimestampFormat = "yyyy-MM-dd";
             configuration.FileExtension = "log";
             configuration.FileNamePrefix = "suek-wialon";
             configuration.MinimumLogLevel = LogLevel.Debug;
@@ -22,7 +23,11 @@ builder.Logging
     );
 
 builder.Services
-    .AddTransient<DevicePacketHandler>();
+    .AddOptions<WialonIpsServerOptions>()
+    .BindConfiguration(WialonIpsServerOptions.Section);
+
+builder.Services
+    .AddTransient<WialonPacketHandler>();
 
 builder.WebHost
     .ConfigureWialonServer();

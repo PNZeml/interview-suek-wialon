@@ -3,38 +3,50 @@ using System.Text;
 namespace Suek.Interview.Wialon.WialonProtocols.Ips1d1;
 
 internal static class WialonIps1d1Decoder {
-    public static bool TryDecodePacket(ReadOnlyMemory<byte> buffer, out IWialonPacket? packet, out int offset) {
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="bytes"></param>
+    /// <param name="packet"></param>
+    /// <param name="offset"></param>
+    /// <returns></returns>
+    public static bool TryDecodePacket(ReadOnlySpan<byte> bytes, out IWialonPacket? packet, out int offset) {
         packet = default;
 
-        var span = buffer.Span;
-
-        // Seek for packet start.
-        offset = span.IndexOf(WialonProtocol.Constants.Delimiter);
+        // Получение начальной позиции пакета
+        offset = bytes.IndexOf(WialonIpsProtocol.Constants.PacketStart);
         if (offset == -1) {
             return false;
         }
-        // Add '#' character to offset
+        // Добавить символ '#' в сдвиг
         offset++;
-        
-        var packetTypeLength = span[offset..].IndexOf(WialonProtocol.Constants.Delimiter);
+
+        var packetTypeLength = bytes[offset..].IndexOf(WialonIpsProtocol.Constants.PacketStart);
         if (packetTypeLength == -1) {
             return false;
         }
 
-        var packetType = Encoding.UTF8.GetString(span.Slice(offset, packetTypeLength));
+        var packetType = Encoding.UTF8.GetString(bytes.Slice(offset, packetTypeLength));
 
-        // Add '#' character to offset and length of Packet Type as UTF8 characters
+        // Добавить символ '#' в сдвиг и количество символов в опрееделнии типа пакета.
         offset += 1 + packetTypeLength;
 
-        var packetTailIdx = span[offset..].IndexOfAny(WialonProtocol.Constants.PacketEnd);
-        var payload = Encoding.UTF8.GetString(span.Slice(offset, packetTailIdx));
+        var packetTailIdx = bytes[offset..].IndexOfAny(WialonIpsProtocol.Constants.PacketEnd);
+        // Используется прямой перевод строки, т.к. нет условия по опитимальному чтению. Можно читать байты
+        // до разделителя, но это приведет все к темже аллокациям новых строк.
+        var packetPayload = Encoding.UTF8.GetString(bytes.Slice(offset, packetTailIdx));
 
-        if (Wialon1d1PacketFactory.TryCreate(packetType, payload, out packet) == false) {
+        var packetDefinition = WialonIpsProtocol.Packets.ByName(packetType);
+
+        if (Wialon1d1PacketFactory.TryCreate(packetDefinition, packetPayload, out packet) == false) {
             return false;
         }
 
         offset += packetTailIdx + 2;
-    
+
+        // Мы можем не расспарсить пакет, так как не получили всех байт, поэтому нужно отделньо
+        // учитывать сдвиги по "обработанным" и "просмотренным" байтам. Но эта потенциальная
+        // проблема не описывалась в условиях задачи.
         return true;
     }
 }

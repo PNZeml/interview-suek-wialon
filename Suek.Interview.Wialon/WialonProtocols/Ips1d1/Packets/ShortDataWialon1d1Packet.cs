@@ -8,7 +8,7 @@ internal record ShortDataWialon1d1Packet(
     int? Height,
     int? Satellites
 ) : IWialonPacket {
-    public string Version => WialonProtocol.Versions.Ips11;
+    public string Version => WialonIpsProtocol.Version.Ips1d1;
 }
 
 public record GpsLocation(

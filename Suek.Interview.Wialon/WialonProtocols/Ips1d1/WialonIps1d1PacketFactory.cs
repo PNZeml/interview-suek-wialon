@@ -4,19 +4,25 @@ using Suek.Interview.Wialon.WialonProtocols.Ips1d1.Packets;
 namespace Suek.Interview.Wialon.WialonProtocols.Ips1d1;
 
 internal static class Wialon1d1PacketFactory {
+    private const string DateTimeFormat = "ddMMyy HHmmss";
+
     private delegate IWialonPacket PacketHandler(string payload);
 
-    private static readonly Dictionary<string, PacketHandler> PacketHandlers =
+    private static readonly Dictionary<WialonIpsProtocol.Packets.Definition, PacketHandler> PacketHandlers =
         new() {
-            [WialonProtocol.Constants.PacketTypes.Login] = HandleLogin,
-            [WialonProtocol.Constants.PacketTypes.Message] = HandleMessage,
-            [WialonProtocol.Constants.PacketTypes.ShortData] = HandleShortData,
+            [WialonIpsProtocol.Packets.Login]     = HandleLogin,
+            [WialonIpsProtocol.Packets.Message]   = HandleMessage,
+            [WialonIpsProtocol.Packets.ShortData] = HandleShortData,
         };
 
-    public static bool TryCreate(string packetType, string payload, out IWialonPacket? packet) {
+    public static bool TryCreate(
+        WialonIpsProtocol.Packets.Definition packetDefinition,
+        string payload,
+        out IWialonPacket? packet
+    ) {
         packet = default;
 
-        if (PacketHandlers.TryGetValue(packetType, out var handler) == false) {
+        if (PacketHandlers.TryGetValue(packetDefinition, out var handler) == false) {
             return false;
         }
 
@@ -56,12 +62,10 @@ internal static class Wialon1d1PacketFactory {
             throw new("Invalid Short Data packet");
         }
 
-        const string dateTimeFormat = "ddMMyy HHmmss";
-
         var collectedAt = DateTimeOffset
             .ParseExact(
                 $"{fields[collectedAtDataFieldIdx]} {fields[collectedAtTimeFieldIdx]}",
-                dateTimeFormat,
+                DateTimeFormat,
                 CultureInfo.InvariantCulture.DateTimeFormat,
                 DateTimeStyles.AssumeUniversal
             );
